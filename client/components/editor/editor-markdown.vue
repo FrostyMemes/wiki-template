@@ -183,7 +183,6 @@
             )
             markdown-template(v-if="templateShown")
 
-
     v-system-bar.editor-markdown-sysbar(dark, status, color='grey darken-3')
       .caption.editor-markdown-sysbar-locale {{locale.toUpperCase()}}
       .caption.px-3 /{{path}}
@@ -210,7 +209,6 @@ import DOMPurify from 'dompurify'
 // ========================================
 // IMPORTS
 // ========================================
-
 
 // Code Mirror
 import CodeMirror from 'codemirror'
@@ -250,7 +248,7 @@ import 'katex/dist/contrib/mhchem'
 import twemoji from 'twemoji'
 import plantuml from './markdown/plantuml'
 import kroki from './markdown/kroki'
-import printTemplate from './markdown/print-template'
+// import printTemplate from './markdown/print-template'
 
 // Prism (Syntax Highlighting)
 import Prism from 'prismjs'
@@ -261,6 +259,11 @@ import mermaid from 'mermaid'
 // Helpers
 import katexHelper from './common/katex'
 import tabsetHelper from './markdown/tabset'
+import Vue from "vue"
+import Vuetify from 'vuetify'
+import 'vuetify/dist/vuetify.min.css'
+
+Vue.use(Vuetify)
 
 // ========================================
 // INIT
@@ -291,6 +294,8 @@ const md = new MarkdownIt({
       return `<pre class="diagram">` + Buffer.from(str, 'base64').toString() + `</pre>`
     } else if (['mermaid', 'plantuml', 'kroki'].includes(lang)) {
       return `<pre class="codeblock-${lang}"><code>${_.escape(str)}</code></pre>`
+    } else if (lang === 'pt') {
+      return `<pre class="form">${_.escape(str)}</pre>`
     } else {
       return `<pre class="line-numbers"><code class="language-${lang}">${_.escape(str)}</code></pre>`
     }
@@ -365,7 +370,7 @@ kroki.init(md, {})
 // ========================================
 
 // TODO: Use same options as defined in backend
-printTemplate.init(md, {})
+// printTemplate.init(md, {})
 
 // ========================================
 // KATEX
@@ -413,6 +418,8 @@ md.renderer.rules.emoji = (token, idx) => {
 // ========================================
 
 let mermaidId = 0
+let pt = 0
+let template
 
 export default {
   components: {
@@ -506,9 +513,16 @@ export default {
       linesMap = []
       // this.$store.set('editor/content', newContent)
       this.processMarkers(this.cm.firstLine(), this.cm.lastLine())
-      this.previewHTML = DOMPurify.sanitize(md.render(newContent), {
-        ADD_TAGS: ['foreignObject']
-      })
+      console.log(this.cm.getValue())
+
+      if (pt) {
+        console.log(template)
+        this.previewHTML = template.innerHTML
+      } else {
+        this.previewHTML = DOMPurify.sanitize(md.render(newContent), {
+          ADD_TAGS: ['foreignObject']
+        })
+      }
       this.$nextTick(() => {
         tabsetHelper.format()
         this.renderMermaidDiagrams()
@@ -724,7 +738,15 @@ export default {
       })
       this.cm.eachLine(from, to, ln => {
         const line = ln.lineNo()
-        if (ln.text.startsWith('```diagram')) {
+        if (ln.text.startsWith('```pt')) {
+          pt = 1
+          template = this.cm.getValue().slice(5, -3);
+          const app = new Vue({
+            template: `<div>${template}</div>`
+          }).$mount()
+          console.log(app.$el)
+          template = app.$el
+        } else if (ln.text.startsWith('```diagram')) {
           found = 'diagram'
           foundStart = line
         } else if (ln.text === '```' && found) {
