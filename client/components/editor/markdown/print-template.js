@@ -1,11 +1,22 @@
 // ------------------------------------
 // Markdown - Print Template Preprocessor
 // ------------------------------------
+/* eslint-disable */
+
+//import Vue from 'vue'
+
+//Vue.component('AgentCard', import('./markdownTemplate.vue'))
+
+//import markdownTemplate from './markdownTemplate'
+
+const Vue = require('vue')
+const markdownTemplate = require('./markdownTemplate')
+
 
 module.exports = {
 
-
   init(mdinst, conf) {
+
     mdinst.use((md, opts) => {
       const openMarker = opts.openMarker || '```pt'
       const openChar = openMarker.charCodeAt(0)
@@ -134,17 +145,14 @@ module.exports = {
       })
       md.renderer.rules.template_printer = (tokens, idx, options, env, self) => {
 
-        Vue.component('AgentCard', {
-          template: `<div>{{agent.name}}</div>`,
-          props: {
-            agent: Object
-          }
-        })
-
         const app = new Vue({
-          template: `<AgentCard :agent="agent" />`,
-          data: () => ({ agent: { name: 'john doe' } })
+          components: {
+            markdownTemplate
+          },
+          template: `<markdown-template></markdown-template>`,
+
         }).$mount()
+
         //return `<button data-v-248295ac="" type="button" class="v-btn v-btn--contained theme--light v-size--default"><span class="v-btn__content">btn</span></button>`
         return app.$el.outerHTML
       }
