@@ -1,5 +1,6 @@
 <template lang='pug'>
   .editor-markdown
+
     v-toolbar.editor-markdown-toolbar(dense, color='primary', dark, flat, style='overflow-x: hidden;')
       template(v-if='isModalShown')
         v-spacer
@@ -144,6 +145,10 @@
           span {{$t('editor:markup.insertDiagram')}}
         v-tooltip(right, color='teal')
           template(v-slot:activator='{ on }')
+            v-btn.mt-3.animated.fadeInLeft.wait-p5s(icon, tile, v-on='on', dark, @click='toggleVue()').mx-0
+              v-icon mdi-hexagon-slice-6
+        v-tooltip(right, color='teal')
+          template(v-slot:activator='{ on }')
             v-btn.mt-3.animated.fadeInLeft.wait-p6s(icon, tile, v-on='on', dark, disabled).mx-0
               v-icon mdi-function-variant
           span {{$t('editor:markup.insertMathExpression')}}
@@ -175,7 +180,9 @@
               :spellcheck='spellModeActive'
               :contenteditable='spellModeActive'
               @blur='spellModeActive = false'
-              )
+            )
+            markdown-template(v-if="templateShown")
+
 
     v-system-bar.editor-markdown-sysbar(dark, status, color='grey darken-3')
       .caption.editor-markdown-sysbar-locale {{locale.toUpperCase()}}
@@ -194,6 +201,7 @@
 import _ from 'lodash'
 import { get, sync } from 'vuex-pathify'
 import markdownHelp from './markdown/help.vue'
+import markdownTemplate from './markdown/markdownTemplate'
 import gql from 'graphql-tag'
 import DOMPurify from 'dompurify'
 
@@ -202,6 +210,7 @@ import DOMPurify from 'dompurify'
 // ========================================
 // IMPORTS
 // ========================================
+
 
 // Code Mirror
 import CodeMirror from 'codemirror'
@@ -240,6 +249,8 @@ import underline from '../../libs/markdown-it-underline'
 import 'katex/dist/contrib/mhchem'
 import twemoji from 'twemoji'
 import plantuml from './markdown/plantuml'
+import kroki from './markdown/kroki'
+import printTemplate from './markdown/print-template'
 
 // Prism (Syntax Highlighting)
 import Prism from 'prismjs'
@@ -278,7 +289,7 @@ const md = new MarkdownIt({
   highlight(str, lang) {
     if (lang === 'diagram') {
       return `<pre class="diagram">` + Buffer.from(str, 'base64').toString() + `</pre>`
-    } else if (['mermaid', 'plantuml'].includes(lang)) {
+    } else if (['mermaid', 'plantuml', 'kroki'].includes(lang)) {
       return `<pre class="codeblock-${lang}"><code>${_.escape(str)}</code></pre>`
     } else {
       return `<pre class="line-numbers"><code class="language-${lang}">${_.escape(str)}</code></pre>`
@@ -343,6 +354,20 @@ md.renderer.rules.blockquote_open = injectLineNumbers
 plantuml.init(md, {})
 
 // ========================================
+// KROKI
+// ========================================
+
+// TODO: Use same options as defined in backend
+kroki.init(md, {})
+
+// ========================================
+// PRINT TEMPLATE
+// ========================================
+
+// TODO: Use same options as defined in backend
+printTemplate.init(md, {})
+
+// ========================================
 // KATEX
 // ========================================
 
@@ -391,7 +416,8 @@ let mermaidId = 0
 
 export default {
   components: {
-    markdownHelp
+    markdownHelp,
+    markdownTemplate
   },
   props: {
     save: {
@@ -408,7 +434,8 @@ export default {
       previewHTML: '',
       helpShown: false,
       spellModeActive: false,
-      insertLinkDialog: false
+      insertLinkDialog: false,
+      templateShown: false
     }
   },
   computed: {
@@ -446,6 +473,11 @@ export default {
       this.activeModal = (this.activeModal === key) ? '' : key
       this.helpShown = false
     },
+
+    toggleVue() {
+      this.templateShown = !this.templateShown
+    },
+
     closeAllModal() {
       this.activeModal = ''
       this.helpShown = false

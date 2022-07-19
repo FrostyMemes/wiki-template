@@ -73,7 +73,7 @@ defaults:
       featurePersonalWikis: true
     security:
       securityOpenRedirect: true
-      securityIframe: true
+      securityIframe: false
       securityReferrerPolicy: true
       securityTrustProxy: true
       securitySRI: true
