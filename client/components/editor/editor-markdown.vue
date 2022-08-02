@@ -181,7 +181,6 @@
               :contenteditable='spellModeActive'
               @blur='spellModeActive = false'
             )
-            markdown-template(v-if="templateShown")
 
     v-system-bar.editor-markdown-sysbar(dark, status, color='grey darken-3')
       .caption.editor-markdown-sysbar-locale {{locale.toUpperCase()}}
@@ -200,7 +199,6 @@
 import _ from 'lodash'
 import { get, sync } from 'vuex-pathify'
 import markdownHelp from './markdown/help.vue'
-import markdownTemplate from './markdown/markdownTemplate'
 import gql from 'graphql-tag'
 import DOMPurify from 'dompurify'
 
@@ -248,7 +246,7 @@ import 'katex/dist/contrib/mhchem'
 import twemoji from 'twemoji'
 import plantuml from './markdown/plantuml'
 import kroki from './markdown/kroki'
-// import printTemplate from './markdown/print-template'
+import templateParser from './markdown/template-parser'
 
 // Prism (Syntax Highlighting)
 import Prism from 'prismjs'
@@ -262,6 +260,7 @@ import tabsetHelper from './markdown/tabset'
 import Vue from "vue"
 import Vuetify from 'vuetify'
 import 'vuetify/dist/vuetify.min.css'
+import 'bootstrap'
 
 Vue.use(Vuetify)
 
@@ -295,7 +294,7 @@ const md = new MarkdownIt({
     } else if (['mermaid', 'plantuml', 'kroki'].includes(lang)) {
       return `<pre class="codeblock-${lang}"><code>${_.escape(str)}</code></pre>`
     } else if (lang === 'pt') {
-      return `<pre class="form">${_.escape(str)}</pre>`
+      return `<div class="form pt-template">${_.escape(str)}</div>`
     } else {
       return `<pre class="line-numbers"><code class="language-${lang}">${_.escape(str)}</code></pre>`
     }
@@ -366,13 +365,6 @@ plantuml.init(md, {})
 kroki.init(md, {})
 
 // ========================================
-// PRINT TEMPLATE
-// ========================================
-
-// TODO: Use same options as defined in backend
-// printTemplate.init(md, {})
-
-// ========================================
 // KATEX
 // ========================================
 
@@ -423,8 +415,7 @@ let template
 
 export default {
   components: {
-    markdownHelp,
-    markdownTemplate
+    markdownHelp
   },
   props: {
     save: {
@@ -516,7 +507,6 @@ export default {
       console.log(this.cm.getValue())
 
       if (pt) {
-        console.log(template)
         this.previewHTML = template.innerHTML
       } else {
         this.previewHTML = DOMPurify.sanitize(md.render(newContent), {
@@ -736,16 +726,14 @@ export default {
           mk.clear()
         }
       })
+      pt = 0
       this.cm.eachLine(from, to, ln => {
+
         const line = ln.lineNo()
         if (ln.text.startsWith('```pt')) {
           pt = 1
-          template = this.cm.getValue().slice(5, -3);
-          const app = new Vue({
-            template: `<div>${template}</div>`
-          }).$mount()
-          console.log(app.$el)
-          template = app.$el
+          template = templateParser(this.cm.getValue().slice(5, -3))
+
         } else if (ln.text.startsWith('```diagram')) {
           found = 'diagram'
           foundStart = line
@@ -936,6 +924,8 @@ export default {
 </script>
 
 <style lang='scss'>
+
+@import "~bootstrap/scss/bootstrap";
 
 $editor-height: calc(100vh - 112px - 24px);
 $editor-height-mobile: calc(100vh - 112px - 16px);

@@ -1,0 +1,22 @@
+key: markdownPrintTemplate
+title: Template Printer
+description: Template Markdown Parser
+author: memes
+icon: mdi-sitemap
+enabledDefault: true
+dependsOn: markdownCore
+props:
+  openMarker:
+    type: String
+    default: "```pt"
+    title: Open Marker
+    hint: String to use as opening delimiter
+    order: 1
+    public: true
+  closeMarker:
+    type: String
+    default: "```"
+    title: Close Marker
+    hint: String to use as closing delimiter
+    order: 2
+    public: true

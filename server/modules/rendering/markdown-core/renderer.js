@@ -27,6 +27,7 @@ module.exports = {
       typographer: this.config.typographer,
       quotes: _.get(quoteStyles, this.config.quotes, quoteStyles.English),
       highlight(str, lang) {
+        console.log(lang)
         if (lang === 'diagram') {
           return `<pre class="diagram">` + Buffer.from(str, 'base64').toString() + `</pre>`
         } else {

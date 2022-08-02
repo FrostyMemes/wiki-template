@@ -11,7 +11,7 @@
       :temporary='$vuetify.breakpoint.smAndDown'
       v-model='navShown'
       :right='$vuetify.rtl'
-      )
+    )
       vue-scroll(:ops='scrollStyle')
         nav-sidebar(:color='$vuetify.theme.dark ? `grey darken-4-d4` : `primary`', :items='sidebarDecoded', :nav-mode='navMode')
 
@@ -27,7 +27,7 @@
         @click='navShown = !navShown'
         v-if='$vuetify.breakpoint.mdAndDown'
         v-show='!navShown'
-        )
+      )
         v-icon mdi-menu
 
     v-main(ref='content')
@@ -39,7 +39,7 @@
           v-breadcrumbs.breadcrumbs-nav.pl-0(
             :items='breadcrumbs'
             divider='/'
-            )
+          )
             template(slot='item', slot-scope='props')
               v-icon(v-if='props.item.path === "/"', small, @click='goHome') mdi-home
               v-btn.ma-0(v-else, :href='props.item.path', small, text) {{props.item.name}}
@@ -80,7 +80,7 @@
                   v-for='(tag, idx) in tags'
                   :href='`/t/` + tag.tag'
                   :key='`tag-` + tag.tag'
-                  )
+                )
                   v-icon(:color='$vuetify.theme.dark ? `teal lighten-3` : `teal`', left, small) mdi-tag
                   span(:class='$vuetify.theme.dark ? `teal--text text--lighten-5` : `teal--text text--darken-2`') {{tag.title}}
                 v-chip.mr-1.mb-1(
@@ -88,7 +88,7 @@
                   :color='$vuetify.theme.dark ? `teal darken-1` : `teal lighten-5`'
                   :href='`/t/` + tags.map(t => t.tag).join(`/`)'
                   :aria-label='$t(`common:page.tagsMatching`)'
-                  )
+                )
                   v-icon(:color='$vuetify.theme.dark ? `teal lighten-3` : `teal`', size='20') mdi-tag-multiple
 
             v-card.mb-5(v-if='commentsEnabled && commentsPerms.read')
@@ -112,7 +112,7 @@
                     outlined
                     style='flex: 1 1 100%;'
                     small
-                    )
+                  )
                     span.blue-grey--text(:class='$vuetify.theme.dark ? `text--lighten-1` : `text--darken-2`') {{$t('common:comments.viewDiscussion')}}
                   v-tooltip(right, v-if='commentsPerms.write')
                     template(v-slot:activator='{ on }')
@@ -123,7 +123,7 @@
                         small
                         :color='$vuetify.theme.dark ? `blue-grey` : `blue-grey darken-2`'
                         :aria-label='$t(`common:comments.newComment`)'
-                        )
+                      )
                         v-icon(:color='$vuetify.theme.dark ? `blue-grey lighten-1` : `blue-grey darken-2`', dense) mdi-comment-plus
                     span {{$t('common:comments.newComment')}}
 
@@ -141,7 +141,7 @@
                         x-small
                         v-if='hasReadHistoryPermission'
                         :aria-label='$t(`common:header.history`)'
-                        )
+                      )
                         v-icon(color='indigo', dense) mdi-history
                     span {{$t('common:header.history')}}
                 .body-2.grey--text(:class='$vuetify.theme.dark ? `` : `text--darken-3`') {{ authorName }}
@@ -198,7 +198,7 @@
                   :left='$vuetify.rtl'
                   fixed
                   dark
-                  )
+                )
                   template(v-slot:activator)
                     v-btn.btn-animate-edit(
                       fab
@@ -208,7 +208,7 @@
                       v-on='onEditActivator'
                       :disabled='!hasWritePagesPermission'
                       :aria-label='$t(`common:page.editPage`)'
-                      )
+                    )
                       v-icon mdi-pencil
                   v-tooltip(:right='$vuetify.rtl', :left='!$vuetify.rtl', v-if='hasReadHistoryPermission')
                     template(v-slot:activator='{ on }')
@@ -219,7 +219,7 @@
                         light
                         v-on='on'
                         @click='pageHistory'
-                        )
+                      )
                         v-icon(size='20') mdi-history
                     span {{$t('common:header.history')}}
                   v-tooltip(:right='$vuetify.rtl', :left='!$vuetify.rtl', v-if='hasReadSourcePermission')
@@ -231,7 +231,7 @@
                         light
                         v-on='on'
                         @click='pageSource'
-                        )
+                      )
                         v-icon(size='20') mdi-code-tags
                     span {{$t('common:header.viewSource')}}
                   v-tooltip(:right='$vuetify.rtl', :left='!$vuetify.rtl', v-if='hasWritePagesPermission')
@@ -243,7 +243,7 @@
                         light
                         v-on='on'
                         @click='pageConvert'
-                        )
+                      )
                         v-icon(size='20') mdi-lightning-bolt
                     span {{$t('common:header.convert')}}
                   v-tooltip(:right='$vuetify.rtl', :left='!$vuetify.rtl', v-if='hasWritePagesPermission')
@@ -255,7 +255,7 @@
                         light
                         v-on='on'
                         @click='pageDuplicate'
-                        )
+                      )
                         v-icon(size='20') mdi-content-duplicate
                     span {{$t('common:header.duplicate')}}
                   v-tooltip(:right='$vuetify.rtl', :left='!$vuetify.rtl', v-if='hasManagePagesPermission')
@@ -267,7 +267,7 @@
                         light
                         v-on='on'
                         @click='pageMove'
-                        )
+                      )
                         v-icon(size='20') mdi-content-save-move-outline
                     span {{$t('common:header.move')}}
                   v-tooltip(:right='$vuetify.rtl', :left='!$vuetify.rtl', v-if='hasDeletePagesPermission')
@@ -279,7 +279,7 @@
                         color='red'
                         v-on='on'
                         @click='pageDelete'
-                        )
+                      )
                         v-icon(size='20') mdi-trash-can-outline
                     span {{$t('common:header.delete')}}
               span {{$t('common:page.editPage')}}
@@ -311,20 +311,24 @@
         dark
         :style='upBtnPosition'
         :aria-label='$t(`common:actions.returnToTop`)'
-        )
+      )
         v-icon mdi-arrow-up
 </template>
 
 <script>
-import { StatusIndicator } from 'vue-status-indicator'
+import {StatusIndicator} from 'vue-status-indicator'
 import Tabset from './tabset.vue'
 import NavSidebar from './nav-sidebar.vue'
 import Prism from 'prismjs'
 import mermaid from 'mermaid'
-import { get, sync } from 'vuex-pathify'
+import {get, sync} from 'vuex-pathify'
 import _ from 'lodash'
 import ClipboardJS from 'clipboard'
 import Vue from 'vue'
+import Vuetify from 'vuetify'
+import 'vuetify/dist/vuetify.min.css'
+
+Vue.use(Vuetify)
 
 Vue.component('Tabset', Tabset)
 
@@ -342,7 +346,9 @@ Prism.plugins.toolbar.registerButton('copy-to-clipboard', (env) => {
   linkCopy.textContent = 'Copy'
 
   const clip = new ClipboardJS(linkCopy, {
-    text: () => { return env.code }
+    text: () => {
+      return env.code
+    }
   })
 
   clip.on('success', () => {
@@ -479,15 +485,15 @@ export default {
     commentsCount: get('page/commentsCount'),
     commentsPerms: get('page/effectivePermissions@comments'),
     rating: {
-      get () {
+      get() {
         return 3.5
       },
-      set (val) {
+      set(val) {
 
       }
     },
     breadcrumbs() {
-      return [{ path: '/', name: 'Home' }].concat(_.reduce(this.path.split('/'), (result, value, key) => {
+      return [{path: '/', name: 'Home'}].concat(_.reduce(this.path.split('/'), (result, value, key) => {
         result.push({
           path: _.get(_.last(result), 'path', `/${this.locale}`) + `/${value}`,
           name: value
@@ -495,18 +501,20 @@ export default {
         return result
       }, []))
     },
-    pageUrl () { return window.location.href },
-    upBtnPosition () {
+    pageUrl() {
+      return window.location.href
+    },
+    upBtnPosition() {
       if (this.$vuetify.breakpoint.mdAndUp) {
         return this.$vuetify.rtl ? `right: 235px;` : `left: 235px;`
       } else {
         return this.$vuetify.rtl ? `right: 65px;` : `left: 65px;`
       }
     },
-    sidebarDecoded () {
+    sidebarDecoded() {
       return JSON.parse(Buffer.from(this.sidebar, 'base64').toString())
     },
-    tocDecoded () {
+    tocDecoded() {
       return JSON.parse(Buffer.from(this.toc, 'base64').toString())
     },
     hasAdminPermission: get('page/effectivePermissions@system.manage'),
@@ -515,7 +523,7 @@ export default {
     hasDeletePagesPermission: get('page/effectivePermissions@pages.delete'),
     hasReadSourcePermission: get('page/effectivePermissions@source.read'),
     hasReadHistoryPermission: get('page/effectivePermissions@history.read'),
-    hasAnyPagePermissions () {
+    hasAnyPagePermissions() {
       return this.hasAdminPermission || this.hasWritePagesPermission || this.hasManagePagesPermission ||
         this.hasDeletePagesPermission || this.hasReadSourcePermission || this.hasReadHistoryPermission
     },
@@ -540,7 +548,7 @@ export default {
 
     this.$store.set('page/mode', 'view')
   },
-  mounted () {
+  mounted() {
     if (this.$vuetify.theme.dark) {
       this.scrollStyle.bar.background = '#424242'
     }
@@ -551,6 +559,16 @@ export default {
       this.handleSideNavVisibility()
     }, 500))
 
+    // let ptTemplate = this.$refs.container.getElementsByClassName('language-pt')
+    // console.log(ptTemplate[0])
+    //
+    // if (ptTemplate.length != 0) {
+    //   const app = new Vue({
+    //     template: `<div>${ptTemplate[0].innerText}</div>`
+    //   }).$mount()
+    //
+    //   this.$refs.container.innerHTML = app.$el.innerHTML
+    // }
     // -> Highlight Code Blocks
     Prism.highlightAllUnder(this.$refs.container)
 
@@ -585,17 +603,17 @@ export default {
     })
   },
   methods: {
-    goHome () {
+    goHome() {
       window.location.assign('/')
     },
-    toggleNavigation () {
+    toggleNavigation() {
       this.navOpen = !this.navOpen
     },
-    upBtnScroll () {
+    upBtnScroll() {
       const scrollOffset = window.pageYOffset || document.documentElement.scrollTop
       this.upBtnShown = scrollOffset > window.innerHeight * 0.33
     },
-    print () {
+    print() {
       if (this.printView) {
         this.printView = false
       } else {
@@ -605,29 +623,31 @@ export default {
         })
       }
     },
-    pageEdit () {
+    pageEdit() {
       this.$root.$emit('pageEdit')
     },
-    pageHistory () {
+    pageHistory() {
       this.$root.$emit('pageHistory')
     },
-    pageSource () {
+    pageSource() {
       this.$root.$emit('pageSource')
     },
-    pageConvert () {
+    pageConvert() {
       this.$root.$emit('pageConvert')
     },
-    pageDuplicate () {
+    pageDuplicate() {
       this.$root.$emit('pageDuplicate')
     },
-    pageMove () {
+    pageMove() {
       this.$root.$emit('pageMove')
     },
-    pageDelete () {
+    pageDelete() {
       this.$root.$emit('pageDelete')
     },
-    handleSideNavVisibility () {
-      if (window.innerWidth === this.winWidth) { return }
+    handleSideNavVisibility() {
+      if (window.innerWidth === this.winWidth) {
+        return
+      }
       this.winWidth = window.innerWidth
       if (this.$vuetify.breakpoint.mdAndUp) {
         this.navShown = true
@@ -635,7 +655,7 @@ export default {
         this.navShown = false
       }
     },
-    goToComments (focusNewComment = false) {
+    goToComments(focusNewComment = false) {
       this.$vuetify.goTo('#discussion', this.scrollOpts)
       if (focusNewComment) {
         document.querySelector('#discussion-new').focus()
@@ -650,13 +670,16 @@ export default {
 .breadcrumbs-nav {
   .v-btn {
     min-width: 0;
+
     &__content {
       text-transform: none;
     }
   }
+
   .v-breadcrumbs__divider:nth-child(2n) {
     padding: 0 6px;
   }
+
   .v-breadcrumbs__divider:nth-child(2) {
     padding: 0 6px 0 12px;
   }

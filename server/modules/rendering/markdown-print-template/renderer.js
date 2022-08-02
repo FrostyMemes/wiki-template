@@ -1,19 +1,19 @@
+const zlib = require('zlib')
+
 // ------------------------------------
-// Markdown - Print Template Preprocessor
+// Markdown - template Preprocessor
 // ------------------------------------
 
 module.exports = {
-
-
-  init(mdinst, conf) {
+  init (mdinst, conf) {
     mdinst.use((md, opts) => {
       const openMarker = opts.openMarker || '```pt'
       const openChar = openMarker.charCodeAt(0)
       const closeMarker = opts.closeMarker || '```'
       const closeChar = closeMarker.charCodeAt(0)
-      const server = opts.server || 'http://localhost:4000'
+      const server = opts.server || 'https://kroki.io'
 
-      md.block.ruler.before('fence', 'template_printer', (state, startLine, endLine, silent) => {
+      md.block.ruler.before('fence', 'pt', (state, startLine, endLine, silent) => {
         let nextLine
         let markup
         let params
@@ -26,16 +26,12 @@ module.exports = {
         // Check out the first character quickly,
         // this should filter out most of non-uml blocks
         //
-        if (openChar !== state.src.charCodeAt(start)) {
-          return false
-        }
+        if (openChar !== state.src.charCodeAt(start)) { return false }
 
         // Check out the rest of the marker string
         //
         for (i = 0; i < openMarker.length; ++i) {
-          if (openMarker[i] !== state.src[start + i]) {
-            return false
-          }
+          if (openMarker[i] !== state.src[start + i]) { return false }
         }
 
         markup = state.src.slice(start, start + i)
@@ -43,15 +39,13 @@ module.exports = {
 
         // Since start is found, we can report success here in validation mode
         //
-        if (silent) {
-          return true
-        }
+        if (silent) { return true }
 
         // Search for the end of the block
         //
         nextLine = startLine
 
-        for (; ;) {
+        for (;;) {
           nextLine++
           if (nextLine >= endLine) {
             // unclosed block should be autoclosed by end of document.
@@ -79,7 +73,7 @@ module.exports = {
             continue
           }
 
-          var closeMarkerMatched = true
+          let closeMarkerMatched = true
           for (i = 0; i < closeMarker.length; ++i) {
             if (closeMarker[i] !== state.src[start + i]) {
               closeMarkerMatched = false
@@ -101,57 +95,46 @@ module.exports = {
           break
         }
 
-        const contents = state.src
+        let contents = state.src
           .split('\n')
           .slice(startLine + 1, nextLine)
           .join('\n')
-
         // We generate a token list for the alt property, to mimic what the image parser does.
         let altToken = []
         // Remove leading space if any.
-        let alt = params ? params.slice(1) : 'template'
+        let alt = params ? params.slice(1) : 'uml diagram'
         state.md.inline.parse(
           alt,
           state.md,
           state.env,
           altToken
         )
-        token = state.push('template_printer', 'div', 0)
+
+        let firstlf = contents.indexOf('\n')
+        if (firstlf === -1) firstlf = undefined
+        let diagramType = contents.substring(0, firstlf)
+        contents = contents.substring(firstlf + 1)
+
+        let result = zlib.deflateSync(contents).toString('base64').replace(/\+/g, '-').replace(/\//g, '_')
+        token = state.push('kroki', 'img', 0)
         // alt is constructed from children. No point in populating it here.
-        token.attrs = [['method', 'POST'], ['action', server]]
+        token.attrs = [ [ 'src', `${server}/${diagramType}/svg/${result}` ], [ 'alt', '' ], ['class', 'uml-diagram'] ]
         token.block = true
         token.children = altToken
-        token.content = contents
         token.info = params
-        token.map = [startLine, nextLine]
+        token.map = [ startLine, nextLine ]
         token.markup = markup
 
         state.line = nextLine + (autoClosed ? 1 : 0)
 
         return true
       }, {
-        alt: ['paragraph', 'reference', 'blockquote', 'list']
+        alt: [ 'paragraph', 'reference', 'blockquote', 'list' ]
       })
-      md.renderer.rules.template_printer = (tokens, idx, options, env, self) => {
-
-        Vue.component('AgentCard', {
-          template: `<div>{{agent.name}}</div>`,
-          props: {
-            agent: Object
-          }
-        })
-
-        const app = new Vue({
-          template: `<AgentCard :agent="agent" />`,
-          data: () => ({ agent: { name: 'john doe' } })
-        }).$mount()
-        //return `<button data-v-248295ac="" type="button" class="v-btn v-btn--contained theme--light v-size--default"><span class="v-btn__content">btn</span></button>`
-        return app.$el.outerHTML
-      }
+      md.renderer.rules.pt = md.renderer.rules.image
     }, {
       openMarker: conf.openMarker,
       closeMarker: conf.closeMarker,
-      imageFormat: conf.imageFormat,
       server: conf.server
     })
   }
