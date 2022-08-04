@@ -327,6 +327,7 @@ import ClipboardJS from 'clipboard'
 import Vue from 'vue'
 import Vuetify from 'vuetify'
 import 'vuetify/dist/vuetify.min.css'
+import 'bootstrap'
 
 Vue.use(Vuetify)
 
@@ -666,7 +667,7 @@ export default {
 </script>
 
 <style lang="scss">
-
+@import "~bootstrap/scss/bootstrap";
 .breadcrumbs-nav {
   .v-btn {
     min-width: 0;

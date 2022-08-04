@@ -246,7 +246,7 @@ import 'katex/dist/contrib/mhchem'
 import twemoji from 'twemoji'
 import plantuml from './markdown/plantuml'
 import kroki from './markdown/kroki'
-import templateParser from './markdown/template-parser'
+import templateRender from './markdown/template-render'
 
 // Prism (Syntax Highlighting)
 import Prism from 'prismjs'
@@ -364,6 +364,7 @@ plantuml.init(md, {})
 // TODO: Use same options as defined in backend
 kroki.init(md, {})
 
+templateRender.init(md, {})
 // ========================================
 // KATEX
 // ========================================
@@ -504,15 +505,15 @@ export default {
       linesMap = []
       // this.$store.set('editor/content', newContent)
       this.processMarkers(this.cm.firstLine(), this.cm.lastLine())
-      console.log(this.cm.getValue())
 
-      if (pt) {
-        this.previewHTML = template.innerHTML
-      } else {
+      // console.log(template)
+      // if (pt) {
+      //   this.previewHTML = template
+      // } else {
         this.previewHTML = DOMPurify.sanitize(md.render(newContent), {
           ADD_TAGS: ['foreignObject']
         })
-      }
+      //}
       this.$nextTick(() => {
         tabsetHelper.format()
         this.renderMermaidDiagrams()
@@ -730,11 +731,12 @@ export default {
       this.cm.eachLine(from, to, ln => {
 
         const line = ln.lineNo()
-        if (ln.text.startsWith('```pt')) {
-          pt = 1
-          template = templateParser(this.cm.getValue().slice(5, -3))
-
-        } else if (ln.text.startsWith('```diagram')) {
+        // if (ln.text.startsWith('```pt')) {
+        //   pt = 1
+        //   //template = templateParser(this.cm.getValue().slice(5, -3))
+        //   template = this.cm.getValue().slice(5, -3)
+        // } else
+        if (ln.text.startsWith('```diagram')) {
           found = 'diagram'
           foundStart = line
         } else if (ln.text === '```' && found) {
