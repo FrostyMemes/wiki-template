@@ -1,9 +1,8 @@
-const zlib = require('zlib')
-
+const templateParser = require('./template-parser')
 // ------------------------------------
-// Markdown - template Preprocessor
+// Markdown - Template Preprocessor
 // ------------------------------------
-
+/* eslint-disable */
 module.exports = {
   init (mdinst, conf) {
     mdinst.use((md, opts) => {
@@ -11,9 +10,9 @@ module.exports = {
       const openChar = openMarker.charCodeAt(0)
       const closeMarker = opts.closeMarker || '```'
       const closeChar = closeMarker.charCodeAt(0)
-      const server = opts.server || 'https://kroki.io'
+      const server = opts.server || 'http://localhost:4000'
 
-      md.block.ruler.before('fence', 'pt', (state, startLine, endLine, silent) => {
+      md.block.ruler.before('fence', 'ptemplate', (state, startLine, endLine, silent) => {
         let nextLine
         let markup
         let params
@@ -95,11 +94,9 @@ module.exports = {
           break
         }
 
-        let contents = state.src
-          .split('\n')
-          .slice(startLine + 1, nextLine)
-          .join('\n')
+        let contents = state.src.slice(5, -3)
         // We generate a token list for the alt property, to mimic what the image parser does.
+
         let altToken = []
         // Remove leading space if any.
         let alt = params ? params.slice(1) : 'uml diagram'
@@ -110,18 +107,12 @@ module.exports = {
           altToken
         )
 
-        let firstlf = contents.indexOf('\n')
-        if (firstlf === -1) firstlf = undefined
-        let diagramType = contents.substring(0, firstlf)
-        contents = contents.substring(firstlf + 1)
-
-        let result = zlib.deflateSync(contents).toString('base64').replace(/\+/g, '-').replace(/\//g, '_')
-        token = state.push('kroki', 'img', 0)
+        token = state.push('ptemplate', 'form', 0)
         // alt is constructed from children. No point in populating it here.
-        token.attrs = [ [ 'src', `${server}/${diagramType}/svg/${result}` ], [ 'alt', '' ], ['class', 'uml-diagram'] ]
+        token.attrs = [ ]
         token.block = true
         token.children = altToken
-        token.info = params
+        token.info = contents
         token.map = [ startLine, nextLine ]
         token.markup = markup
 
@@ -131,7 +122,9 @@ module.exports = {
       }, {
         alt: [ 'paragraph', 'reference', 'blockquote', 'list' ]
       })
-      md.renderer.rules.pt = md.renderer.rules.image
+      md.renderer.rules.ptemplate = function (tokens, idx, options, env, self) {
+        return templateParser(tokens[idx].info)
+      }
     }, {
       openMarker: conf.openMarker,
       closeMarker: conf.closeMarker,
@@ -139,3 +132,4 @@ module.exports = {
     })
   }
 }
+
