@@ -94,7 +94,10 @@ module.exports = {
           break
         }
 
-        let contents = state.src.slice(5, -3)
+        let contents = state.src
+          .split('\n')
+          .slice(startLine + 1, nextLine)
+          .join('\n')
         // We generate a token list for the alt property, to mimic what the image parser does.
 
         let altToken = []
