@@ -1,4 +1,6 @@
 /* eslint-disable */
+
+
 function Pattern(exec) {
   this.exec = exec;
 }
@@ -100,73 +102,76 @@ const ptrFormCheck =
 
 const parse = (parseText) => {
 
-  const literals = parseText
-    .split(literalSplitter)
-    .map(literal => literal.trim())
-    .filter(Boolean)
+  try {
 
-  let id, type, title, text
-  let tag
-  let resultTemplate = ``
+    const literals = parseText
+      .split(literalSplitter)
+      .map(literal => literal.trim())
+      .filter(Boolean)
+
+    let id, type, title, text
+    let tag
+    let resultTemplate = ``
+    let keys = []
 
 
-  literals.forEach(literal => {
-    const attributes = ptrAttributes.exec(literal, 0)
-    const literalKey = literal.split("{")[0].trim()
-    const literalBody = literal
-      .slice(attributes["end"])
-      .split(":")[1]
-      .trim()
+    literals.forEach(literal => {
+      const attributes = ptrAttributes.exec(literal, 0)
+      const literalKey = literal.split("{")[0].trim()
+      const literalBody = literal
+        .slice(attributes["end"])
+        .split(":")[1]
+        .trim()
 
-    let value = `\n`
-    title = (attributes) ? ptrMarksContent.exec(attributes["res"], 0)["res"] : literalKey
-    if (ptrMarksArea.exec(literalBody, 0)) {
-      let markGroups = literalBody.match(ptrMarkGroupWords)
-      tag = (markGroups.length>1) ? 'textarea' : 'input'
-      markGroups.forEach(group => {
-        text = ptrDuoMarkContent.exec(group, 0)
-        value += (text["res"].trim() != "") ? `${text["res"]}\n`:`\n`
-      })
-      resultTemplate += `
+      let value = `\n`
+      title = (attributes) ? ptrMarksContent.exec(attributes["res"], 0)["res"] : literalKey
+      if (ptrMarksArea.exec(literalBody, 0)) {
+        let markGroups = literalBody.match(ptrMarkGroupWords)
+        tag = (markGroups.length > 1) ? 'textarea' : 'input'
+        markGroups.forEach(group => {
+          text = ptrDuoMarkContent.exec(group, 0)
+          value += (text["res"].trim() != "") ? `${text["res"]}\n` : `\n`
+        })
+        resultTemplate += `
       <div class="form-floating mb-3">
         <${tag} class="form-control" name="${literalKey}" id="${literalKey}" placeholder="${title}" ${(tag == 'input') ? ` value=${value}>` : `>${value}</textarea>`}
         <label for="${literalKey}">${title}</label>
       </div>
       `
-    } else {
-      let optionLabel
-      let selected
-      let options = literalBody
-        .split(",")
-        .map(value => value.trim())
-        .filter(Boolean)
+      } else {
+        let optionLabel
+        let selected
+        let options = literalBody
+          .split(",")
+          .map(value => value.trim())
+          .filter(Boolean)
 
-      tag = ""
-      if (ptrVerticalBraceArea.exec(options[0], 0)) {
-        options.forEach(option => {
-          if (ptrVerticalBraceArea.exec(option, 0)) {
-            value = ptrVerticalBraceContent.exec(option, 0)
-            selected = (option[value["end"] + 2] == '*' ? "selected" : "")
-            tag += `<option value="${value["res"]}" ${selected}>${value["res"]}</option>\n`
-          }
-        })
-        resultTemplate += `
+        tag = ""
+        if (ptrVerticalBraceArea.exec(options[0], 0)) {
+          options.forEach(option => {
+            if (ptrVerticalBraceArea.exec(option, 0)) {
+              value = ptrVerticalBraceContent.exec(option, 0)
+              selected = (option[value["end"] + 2] == '*' ? "selected" : "")
+              tag += `<option value="${value["res"]}" ${selected}>${value["res"]}</option>\n`
+            }
+          })
+          resultTemplate += `
         <label for="${literalKey}" class="form-label">${title}</label>
         <select name="${literalKey}" id="${literalKey}" class="form-select mb-3" aria-label="${literalKey}">
           ${tag}
         </select>
         `
-      } else {
+        } else {
 
-        let idCounter = 1
-        type = (ptrRoundBraceArea.exec(options[0], 0)) ? 'radio' : 'checkbox'
-        options.forEach(option => {
-          if (ptrFormCheck[type][0].exec(option, 0)) {
-            value = ptrFormCheck[type][1].exec(option, 0)
-            selected = (value["res"] == '*') ? "checked" : ""
-            optionLabel = option.slice(value["end"] + 2).trim()
-            id = `${literalKey}_${idCounter}`
-            tag += `
+          let idCounter = 1
+          type = (ptrRoundBraceArea.exec(options[0], 0)) ? 'radio' : 'checkbox'
+          options.forEach(option => {
+            if (ptrFormCheck[type][0].exec(option, 0)) {
+              value = ptrFormCheck[type][1].exec(option, 0)
+              selected = (value["res"] == '*') ? "checked" : ""
+              optionLabel = option.slice(value["end"] + 2).trim()
+              id = `${literalKey}_${idCounter}`
+              tag += `
               <div class="form-check">
                 <input class="form-check-input" type="${type}" id="${id}" name="${literalKey}"  ${selected}>
                 <label class="form-check-label" for="${id}">
@@ -174,23 +179,30 @@ const parse = (parseText) => {
                 </label>
               </div>
             `
-            id++
-          }
-        })
+              id++
+            }
+          })
 
-        resultTemplate += `
+          resultTemplate += `
         <div class="mb-3">
           <label for="${literalKey}" class="form-label">${title}</label>
           ${tag}
         </div>
         `
+        }
       }
-    }
 
-  })
+    })
 
-  return `<form>${resultTemplate}</form>`
+    return `<form>${resultTemplate}</form>`
+  }
+  catch (err) {
+    return `<div class="alert alert-danger" role="alert">
+      Error: check syntax
+    </div>`
+  }
+
 }
 
 module.exports = parse
-//console.log(parse(`kek {title: "выц"}: (*) sss, () wdw; aaa {title: "eee"}: [*] 3, [] 1;`))
+
