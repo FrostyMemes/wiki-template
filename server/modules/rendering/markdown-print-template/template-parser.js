@@ -194,7 +194,9 @@ const parse = (parseText) => {
 
     })
 
-    return `<form>${resultTemplate}</form>`
+    return `<form>${resultTemplate}
+              <button type="button" class="btn btn-primary">Отправить</button>
+            </form>`
   }
   catch (err) {
     return `<div class="alert alert-danger" role="alert">
