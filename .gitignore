@@ -9,6 +9,7 @@ dist
 # Dependency directories
 node_modules
 npm/node_modules
+fastify/node_modules
 
 # NPM / Yarn
 .npm
